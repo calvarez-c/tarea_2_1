@@ -29,6 +29,24 @@ class RegistrationData {
     );
   }
 
+  //Para definir la contrasenia con el numero de cuenta.
+  factory RegistrationData.validateRegisterWithOutPassword({
+    required String nombre,
+    required String correo,
+    required String contrasenia,
+    required String telefono,
+  }) {
+    _validateNombre(nombre);
+    _validateCorreo(correo);
+    _validateTelefono(telefono);
+    return RegistrationData._(
+      nombre: nombre,
+      correo: correo.trim(),
+      contrasenia: contrasenia,
+      telefono: telefono.trim(),
+    );
+  }
+
   // setNombre(String nombre) {
   //   validateNombre(nombre);
   //   this.nombre = nombre;

@@ -2,10 +2,10 @@ import 'package:aplicacion_login_registro/services/registration_data.dart';
 
 class UserData {
   static final List<RegistrationData> _users = [
-    RegistrationData.validateRegister(
+    RegistrationData.validateRegisterWithOutPassword(
       nombre: "Carlos Alvarez",
       correo: "alfredo.alvarez@unah.hn",
-      contrasenia: "20222030195.",
+      contrasenia: "20222030195",
       telefono: "97209636",
     ),
   ];
