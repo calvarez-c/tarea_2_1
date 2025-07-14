@@ -1,5 +1,9 @@
+import 'package:aplicacion_login_registro/data/user_data.dart';
+import 'package:aplicacion_login_registro/services/registration_data.dart';
 import 'package:aplicacion_login_registro/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,6 +13,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  //final List<RegistrationData> usersData = [];
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final nameController = TextEditingController();
@@ -93,7 +98,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       CustomTextField(
                         labelText: "Ingrese su numero telefonico",
                         hintText: "",
-                        controller: emailController,
+                        controller: phoneController,
+                        //obligar que solo sean numeros.
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        textInputType: TextInputType.number,
                         radius: 12,
                       ),
                       SizedBox(height: 20),
@@ -149,7 +159,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       SizedBox(height: 10),
 
-                      //BOTON DE INICIAR SESION
+                      //BOTON DE REGISTRARSE
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -164,9 +174,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             padding: EdgeInsets.all(24),
                           ),
                           onPressed: () {
-                            setState(() {
-                              print("logeo");
-                            });
+                            if (!aceptar!) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.red,
+                                  action: SnackBarAction(
+                                    label: 'Cerrar',
+                                    onPressed: () {},
+                                  ),
+                                  content: Text(
+                                    'Debe aceptar compartir su informacion.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+                            try {
+                              final user = RegistrationData.validateRegister(
+                                nombre: nameController.text,
+                                correo: emailController.text,
+                                contrasenia: passwordController.text,
+                                telefono: phoneController.text,
+                              );
+                              UserData.addUser(user);
+
+                              UserData.showUsers();
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  backgroundColor: Colors.blue,
+                                  action: SnackBarAction(
+                                    label: 'Cerrar',
+                                    onPressed: () {},
+                                  ),
+                                  content: Text('Cuenta registrada con exito!'),
+                                ),
+                              );
+                              context.goNamed('login');
+                            } catch (e) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    actionsAlignment: MainAxisAlignment.center,
+                                    title: Text("Advertencia"),
+                                    content: Text(
+                                      e.toString(),
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          context.pop();
+                                        },
+                                        child: Text(
+                                          'Entiendo',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           },
                           child: Text(
                             "Registrarme",
@@ -205,7 +279,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           TextButton(
                             onPressed: () {
                               // TODO: navegar a Login
-                              print("iniciar sesion");
+                              context.goNamed('login');
                             },
                             child: Text(
                               "Inicia Sesion",

@@ -1,5 +1,10 @@
+import 'package:aplicacion_login_registro/data/user_data.dart';
 import 'package:aplicacion_login_registro/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+String? _rememberedEmail;
+String? _rememberedPassword;
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({super.key});
@@ -15,6 +20,15 @@ class _LoginScreenState extends State<LoginScreen> {
   bool passwordVisible = false;
 
   @override
+  void initState() {
+    super.initState();
+    if (_rememberedEmail != null && _rememberedPassword != null) {
+      emailController.text = _rememberedEmail!;
+      passwordController.text = _rememberedPassword!;
+      recuerdame = true;
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
@@ -90,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
+                      UserData.showUsers();
                       //TODO: ir a recuperar contrase;a
                     },
                     child: Text(
@@ -116,14 +131,135 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: EdgeInsets.all(24),
                   ),
                   onPressed: () {
-                    setState(() {
-                      print("logeo");
-                    });
+                    //VALIDACIONES DE DATOS INGRESADOS
+                    if (emailController.text.isEmpty ||
+                        passwordController.text.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            actionsAlignment: MainAxisAlignment.center,
+                            content: Text(
+                              "Los datos no pueden ir en blanco.",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                child: Text(
+                                  'Entiendo',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return;
+                    }
+
+                    if (!emailController.text.contains('@unah.hn')) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            actionsAlignment: MainAxisAlignment.center,
+                            title: Text(
+                              "Advertencia",
+                              // style: TextStyle(color: Colors.red[500]),
+                            ),
+                            content: Text(
+                              "El dominio del correo no es valido.",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                child: Text(
+                                  "Entiendo",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return;
+                      // ScaffoldMessenger.of(context).showSnackBar(
+                      //   SnackBar(
+                      //     content: Text("El correo no es valido"),
+                      //     action: SnackBarAction(
+                      //       label: "Cerrar",
+                      //       onPressed: () {},
+                      //     ),
+                      //   ),
+                      // );
+                    }
+
+                    if (!(UserData.auth(
+                      emailController.text,
+                      passwordController.text,
+                    ))) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            actionsAlignment: MainAxisAlignment.center,
+                            title: Text(
+                              "Advertencia",
+                              // style: TextStyle(color: Colors.red[500]),
+                            ),
+                            content: Text(
+                              "Correo y contrasenia incorrectos.",
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  context.pop();
+                                },
+                                child: Text(
+                                  "Entiendo",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      return;
+                    }
+
+                    if (recuerdame == true) {
+                      _rememberedEmail = emailController.text;
+                      _rememberedPassword = passwordController.text;
+                    } else {
+                      _rememberedEmail = null;
+                      _rememberedPassword = null;
+                    }
+
+                    //SI TODO ESTA CORRECTO
+                    context.goNamed('home');
                   },
                   child: Text("Iniciar sesion", style: TextStyle(fontSize: 18)),
                 ),
               ),
-              SizedBox(height: 10),
 
               //SEPARADOR
               Row(
@@ -138,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Expanded(child: Divider()),
                 ],
               ),
-              SizedBox(height: 150),
+              Spacer(),
 
               //AUXILIAR
               Row(
@@ -151,6 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () {
                       // TODO: navegar a Registro
+                      context.goNamed('register');
                       print("registrarse");
                     },
                     child: Text(
@@ -164,6 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
+              Spacer(),
             ],
           ),
         ),
